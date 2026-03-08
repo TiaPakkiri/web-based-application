@@ -1,43 +1,103 @@
+from flask import Flask, render_template, request, redirect, url_for
+from models import db, User, Campus, Category, Project
 
-from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+app = Flask(__name__)
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///tracker.db"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["SECRET_KEY"] = "your-secret-key"
 
-db = SQLAlchemy()
+db.init_app(app)
 
-class User(db.Model):
-    __tablename__ = "users"
+@app.route("/")
+def home():
+    return redirect(url_for("dashboard"))
 
-    id = db.Column(db.Integer, primary_key=True)
-    full_name = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    role = db.Column(db.String(20), nullable=False)
+@app.route("/dashboard")
+def dashboard():
+    projects = Project.query.filter_by(status="Approved").all()
+    return render_template("dashboard.html", projects=projects)
 
-class Campus(db.Model):
-    __tablename__ = "campuses"
+@app.route("/submit-project", methods=["GET", "POST"])
+def submit_project():
+    campuses = Campus.query.all()
+    categories = Category.query.all()
 
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
+    if request.method == "POST":
+        title = request.form["title"]
+        short_description = request.form["short_description"]
+        detailed_description = request.form["detailed_description"]
+        campus_id = request.form["campus_id"]
+        category_id = request.form["category_id"]
 
-class Category(db.Model):
-    __tablename__ = "categories"
+        demo_user = User.query.first()
 
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
+        new_project = Project(
+            title=title,
+            short_description=short_description,
+            detailed_description=detailed_description,
+            campus_id=campus_id,
+            category_id=category_id,
+            user_id=demo_user.id,
+            status="Pending"
+        )
 
-class Project(db.Model):
-    __tablename__ = "projects"
+        db.session.add(new_project)
+        db.session.commit()
 
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(150), nullable=False)
-    short_description = db.Column(db.String(255), nullable=False)
-    detailed_description = db.Column(db.Text, nullable=False)
-    status = db.Column(db.String(50), default="Pending")
-    date_submitted = db.Column(db.DateTime, default=datetime.utcnow)
+        return redirect(url_for("dashboard"))
 
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    campus_id = db.Column(db.Integer, db.ForeignKey("campuses.id"), nullable=False)
-    category_id = db.Column(db.Integer, db.ForeignKey("categories.id"), nullable=False)
+    return render_template("submit_project.html", campuses=campuses, categories=categories)
 
-    owner = db.relationship("User", backref="projects")
-    campus = db.relationship("Campus", backref="projects")
-    category = db.relationship("Category", backref="projects")
+@app.route("/project/<int:project_id>")
+def project_detail(project_id):
+    project = Project.query.get_or_404(project_id)
+    return render_template("project_detail.html", project=project)
+
+@app.route("/admin/pending")
+def admin_pending():
+    pending_projects = Project.query.filter_by(status="Pending").all()
+    return render_template("admin_pending.html", projects=pending_projects)
+
+@app.route("/admin/approve/<int:project_id>", methods=["POST"])
+def approve_project(project_id):
+    project = Project.query.get_or_404(project_id)
+    project.status = "Approved"
+    db.session.commit()
+    return redirect(url_for("admin_pending"))
+
+@app.route("/setup")
+def setup():
+    db.create_all()
+
+    if not User.query.first():
+        admin = User(full_name="Admin User", email="admin@dut.ac.za", role="admin")
+        student = User(full_name="Student User", email="student@dut.ac.za", role="student")
+
+        campus1 = Campus(name="Steve Biko")
+        campus2 = Campus(name="ML Sultan")
+        campus3 = Campus(name="Ritson")
+
+        category1 = Category(name="Energy")
+        category2 = Category(name="Recycling")
+
+        db.session.add_all([admin, student, campus1, campus2, campus3, category1, category2])
+        db.session.commit()
+
+    return "Database created and sample data inserted."
+
+@app.route("/add-ritson")
+def add_ritson():
+    existing = Campus.query.filter_by(name="Ritson").first()
+    if not existing:
+        ritson = Campus(name="Ritson")
+        db.session.add(ritson)
+        db.session.commit()
+        return "Ritson added successfully."
+    return "Ritson already exists."
+
+@app.route("/notifications")
+def notifications():
+    return render_template("notifications.html")
+
+if __name__ == "__main__":
+    app.run(debug=True)
