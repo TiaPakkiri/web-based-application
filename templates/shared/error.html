@@ -1,0 +1,119 @@
+{% extends "shared/base.html" %}
+
+{% block title %}
+  {% if error_code == 404 %}
+    Page Not Found - DUT Sustainability Tracker
+  {% elif error_code == 500 %}
+    Server Error - DUT Sustainability Tracker
+  {% else %}
+    Error - DUT Sustainability Tracker
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center px-4 py-12">
+    <div class="text-center max-w-md">
+        <!-- Error Icon -->
+        <div class="mb-6">
+            {% if error_code == 404 %}
+                <div class="inline-block bg-red-100 text-red-600 p-6 rounded-full">
+                    <i class="fas fa-search text-6xl"></i>
+                </div>
+            {% elif error_code == 500 %}
+                <div class="inline-block bg-red-100 text-red-600 p-6 rounded-full">
+                    <i class="fas fa-exclamation-triangle text-6xl"></i>
+                </div>
+            {% else %}
+                <div class="inline-block bg-red-100 text-red-600 p-6 rounded-full">
+                    <i class="fas fa-times-circle text-6xl"></i>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Error Code & Title -->
+        <h1 class="text-5xl font-bold text-gray-900 mb-4">
+            {% if error_code == 404 %}
+                404
+            {% elif error_code == 500 %}
+                500
+            {% else %}
+                Error
+            {% endif %}
+        </h1>
+
+        <!-- Error Message -->
+        <h2 class="text-2xl font-semibold text-gray-700 mb-4">
+            {% if error_code == 404 %}
+                Page Not Found
+            {% elif error_code == 500 %}
+                Internal Server Error
+            {% else %}
+                Something Went Wrong
+            {% endif %}
+        </h2>
+
+        <!-- Description -->
+        <p class="text-gray-600 mb-8 text-lg">
+            {% if error_code == 404 %}
+                The page you're looking for doesn't exist. It might have been removed or the URL might be incorrect.
+            {% elif error_code == 500 %}
+                Something went wrong on our end. Please try again later or contact our support team.
+            {% else %}
+                An unexpected error occurred. Please try again or return to the home page.
+            {% endif %}
+        </p>
+
+        <!-- Error Details (if available) -->
+        {% if error_message %}
+            <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-8 text-left">
+                <p class="text-sm text-red-800 font-mono">
+                    <strong>Error Details:</strong><br>
+                    {{ error_message }}
+                </p>
+            </div>
+        {% endif %}
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="{{ url_for('index') }}" class="inline-flex items-center justify-center px-6 py-3 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 transition duration-200">
+                <i class="fas fa-home mr-2"></i>
+                Go Home
+            </a>
+            <a href="javascript:history.back()" class="inline-flex items-center justify-center px-6 py-3 bg-gray-300 text-gray-800 font-semibold rounded-lg hover:bg-gray-400 transition duration-200">
+                <i class="fas fa-arrow-left mr-2"></i>
+                Go Back
+            </a>
+        </div>
+
+        <!-- Support Info -->
+        <div class="mt-12 pt-8 border-t border-gray-200">
+            <p class="text-gray-600 text-sm mb-4">
+                Need help?
+            </p>
+            <div class="flex justify-center space-x-6 text-sm">
+                <a href="mailto:support@dut.edu.za" class="text-emerald-600 hover:text-emerald-700 font-semibold transition">
+                    <i class="fas fa-envelope mr-1"></i>
+                    Email Support
+                </a>
+                <a href="{{ url_for('dashboard') }}" class="text-emerald-600 hover:text-emerald-700 font-semibold transition">
+                    <i class="fas fa-question-circle mr-1"></i>
+                    Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Debug Info (only show if debug mode is enabled) -->
+{% if config.DEBUG and error_trace %}
+    <div class="mt-12 max-w-4xl mx-auto">
+        <details class="bg-gray-100 border border-gray-300 rounded-lg p-6">
+            <summary class="cursor-pointer font-bold text-gray-700 hover:text-gray-900">
+                <i class="fas fa-code mr-2"></i>
+                Error Trace (Debug Mode)
+            </summary>
+            <pre class="mt-4 bg-gray-900 text-gray-100 p-4 rounded overflow-auto text-xs">{{ error_trace }}</pre>
+        </details>
+    </div>
+{% endif %}
+{% endblock %}

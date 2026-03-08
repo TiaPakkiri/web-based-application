@@ -1,0 +1,36 @@
+/* Minimal custom styles - Tailwind handles most */
+
+/* Smooth animations */
+* {
+    @apply transition-colors duration-200;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #10b981;
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #059669;
+}
+
+/* Smooth page transitions */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Print styles */
+@media print {
+    nav, footer {
+        display: none;
+    }
+}

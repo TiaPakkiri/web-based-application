@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Panel - Pending Projects{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-4xl font-bold text-gray-900 flex items-center space-x-3 mb-2">
+        <i class="fas fa-cog text-emerald-600"></i>
+        <span>Admin Panel</span>
+    </h1>
+    <p class="text-gray-600">Review and approve pending sustainability projects.</p>
+</div>
+
+<div class="bg-white rounded-lg shadow-md overflow-hidden">
+    {% if projects %}
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-900 text-white">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-sm font-semibold">Project Title</th>
+                        <th class="px-6 py-4 text-left text-sm font-semibold">Campus</th>
+                        <th class="px-6 py-4 text-left text-sm font-semibold">Category</th>
+                        <th class="px-6 py-4 text-left text-sm font-semibold">Submitted</th>
+                        <th class="px-6 py-4 text-left text-sm font-semibold">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for project_id, project in projects %}
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-6 py-4 font-semibold text-gray-900">{{ project.title }}</td>
+                        <td class="px-6 py-4 text-gray-700">{{ project.campus }}</td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center space-x-1 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold">
+                                <i class="fas fa-tag"></i>
+                                <span>{{ project.category }}</span>
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-gray-600 text-sm">{{ project.date_submitted[:10] }}</td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center space-x-3">
+                                <form method="POST" action="/admin/approve/{{ project_id }}" style="display:inline;">
+                                    <button type="submit" class="inline-flex items-center space-x-1 bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded text-sm font-semibold transition">
+                                        <i class="fas fa-check"></i>
+                                        <span>Approve</span>
+                                    </button>
+                                </form>
+                                <a href="/project/{{ loop.index0 }}" class="inline-flex items-center space-x-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm font-semibold transition">
+                                    <i class="fas fa-eye"></i>
+                                    <span>View</span>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="p-12 text-center">
+            <i class="fas fa-inbox text-5xl text-gray-400 mb-4 block"></i>
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">No pending projects</h3>
+            <p class="text-gray-600">All projects have been reviewed!</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

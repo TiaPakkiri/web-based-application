@@ -1,2 +1,3 @@
 flask
-flask-sqlalchemy
+firebase-admin
+python-dotenv

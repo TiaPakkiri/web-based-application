@@ -1,0 +1,82 @@
+{% extends "shared/base.html" %}
+
+{% block title %}Review Pending Projects - DUT Sustainability Tracker{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-4xl font-bold text-gray-900 flex items-center space-x-3 mb-2">
+        <i class="fas fa-hourglass-end text-red-600"></i>
+        <span>Pending Projects Review</span>
+    </h1>
+    <p class="text-gray-600">Review and approve/reject project submissions from students and staff.</p>
+</div>
+
+{% if projects %}
+<div class="space-y-6">
+    {% for project in projects %}
+    <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition">
+        <div class="flex items-start justify-between mb-4">
+            <div class="flex-1">
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">{{ project.title }}</h3>
+                <p class="text-gray-600 mb-3">{{ project.short_description }}</p>
+                <div class="flex flex-wrap gap-3 mb-4">
+                    <span class="inline-flex items-center space-x-1 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold">
+                        <i class="fas fa-user"></i>
+                        <span>{{ project.submitted_by }}</span>
+                    </span>
+                    <span class="inline-flex items-center space-x-1 bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-semibold">
+                        <i class="fas fa-tag"></i>
+                        <span>{{ project.category }}</span>
+                    </span>
+                    <span class="inline-flex items-center space-x-1 bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-xs font-semibold">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>{{ project.campus }}</span>
+                    </span>
+                    <span class="inline-flex items-center space-x-1 text-gray-600 text-xs">
+                        <i class="fas fa-calendar"></i>
+                        <span>{{ project.date_submitted[:10] }}</span>
+                    </span>
+                </div>
+            </div>
+            <span class="inline-flex items-center space-x-1 bg-yellow-100 text-yellow-700 px-4 py-2 rounded-full font-semibold">
+                <i class="fas fa-circle"></i>
+                <span>Pending</span>
+            </span>
+        </div>
+
+        <!-- Detailed Description -->
+        <div class="bg-gray-50 rounded-lg p-4 mb-4">
+            <h4 class="font-semibold text-gray-900 mb-2">Project Details:</h4>
+            <p class="text-gray-700 whitespace-pre-wrap">{{ project.detailed_description }}</p>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col md:flex-row gap-3">
+            <form method="POST" action="/admin/approve/{{ project.id }}" class="flex-1">
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-4 rounded-lg transition flex items-center justify-center space-x-2">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Approve</span>
+                </button>
+            </form>
+            <form method="POST" action="/admin/reject/{{ project.id }}" class="flex-1">
+                <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition flex items-center justify-center space-x-2">
+                    <i class="fas fa-times-circle"></i>
+                    <span>Reject</span>
+                </button>
+            </form>
+            <a href="/project/{{ project.id }}" class="flex-1 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition flex items-center justify-center space-x-2 font-semibold">
+                <i class="fas fa-eye"></i>
+                <span>View Full</span>
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="bg-green-50 border-l-4 border-green-500 p-8 rounded text-center">
+    <i class="fas fa-check-circle text-5xl text-green-500 mb-4 block"></i>
+    <h3 class="text-2xl font-bold text-green-900 mb-2">All Caught Up!</h3>
+    <p class="text-green-700">There are no pending projects to review. Great work!</p>
+</div>
+{% endif %}
+{% endblock %}
